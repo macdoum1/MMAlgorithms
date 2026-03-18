@@ -33,27 +33,45 @@ extension String {
         lowercased() == String(lowercased().reversed())
     }
 
-    /// Builds a palindrome by appending the reversed prefix. Educational / partial implementation.
+    /// Returns a palindrome formed by inserting the fewest characters possible into the string.
+    /// Uses dynamic programming (O(n²) time and space).
     public func palindromeWithMinInsertions() -> String {
-        guard count > 1 else { return self }
-        if count == 2 && first == last { return self }
-
         let chars = Array(self)
-        var last = chars.count - 1
-        var start = 0
+        let n = chars.count
+        guard n > 1 else { return self }
 
-        for i in 0..<last {
-            if chars[i] == chars[last] {
-                last -= 1
-            } else {
-                start = i + 1
+        // dp[i][j] = min insertions to make chars[i...j] a palindrome
+        var dp = [[Int]](repeating: [Int](repeating: 0, count: n), count: n)
+        for length in 2...n {
+            for i in 0...(n - length) {
+                let j = i + length - 1
+                dp[i][j] = chars[i] == chars[j]
+                    ? dp[i + 1][j - 1]
+                    : min(dp[i + 1][j], dp[i][j - 1]) + 1
             }
         }
 
-        let prefix = String(chars[0..<start])
-        let reversedPrefix = String(prefix.reversed())
-        let withoutLast = String(dropLast())
-        return withoutLast + reversedPrefix
+        // Reconstruct the palindrome from the DP table
+        var left: [Character] = []
+        var right: [Character] = []
+        var i = 0, j = n - 1
+        while i < j {
+            if chars[i] == chars[j] {
+                left.append(chars[i])
+                right.append(chars[j])
+                i += 1; j -= 1
+            } else if dp[i + 1][j] <= dp[i][j - 1] {
+                left.append(chars[i])
+                right.append(chars[i])
+                i += 1
+            } else {
+                left.append(chars[j])
+                right.append(chars[j])
+                j -= 1
+            }
+        }
+        if i == j { left.append(chars[i]) }
+        return String(left + right.reversed())
     }
 
     /// Returns true if this string is a rotation of `other` (case-insensitive).

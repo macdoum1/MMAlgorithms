@@ -54,4 +54,31 @@ final class HandyAlgsTests: XCTestCase {
         XCTAssertFalse("())".hasCorrectParentheses)
         XCTAssertFalse(")(".hasCorrectParentheses)
     }
+
+    func testPalindromeWithMinInsertionsSingleChar() {
+        XCTAssertEqual("a".palindromeWithMinInsertions(), "a")
+    }
+
+    func testPalindromeWithMinInsertionsAlreadyPalindrome() {
+        let result = "aba".palindromeWithMinInsertions()
+        XCTAssertEqual(result, "aba")
+    }
+
+    func testPalindromeWithMinInsertionsTwoChars() {
+        let result = "ab".palindromeWithMinInsertions()
+        XCTAssertTrue(result.isPalindrome)
+        XCTAssertEqual(result.count, 3)
+    }
+
+    func testPalindromeWithMinInsertionsRace() {
+        let result = "race".palindromeWithMinInsertions()
+        XCTAssertTrue(result.isPalindrome)
+        XCTAssertEqual(result.count, 7) // 3 insertions → "racecar"
+    }
+
+    func testPalindromeWithMinInsertionsAbcd() {
+        let result = "abcd".palindromeWithMinInsertions()
+        XCTAssertTrue(result.isPalindrome)
+        XCTAssertEqual(result.count, 7) // 3 insertions needed
+    }
 }

@@ -62,7 +62,9 @@ final class SubarrayUtilityTests: XCTestCase {
     }
 
     func testPairsWithSumUsingDictionary() {
-        // WIP: dictionary approach may produce duplicates — just verify it doesn't crash
-        _ = SubarrayUtility.allPairs(from: [5, 5, 3, 100, 7, 3], summingTo: 10, useDictionary: true)
+        let result = SubarrayUtility.allPairs(from: [5, 5, 3, 100, 7, 3], summingTo: 10, useDictionary: true)
+        XCTAssertEqual(result.count, 2)
+        XCTAssertTrue(result.contains([5, 5]))
+        XCTAssertTrue(result.contains([3, 7]))
     }
 }

@@ -108,18 +108,26 @@ public enum SubarrayUtility {
     // MARK: - All pairs with given sum
 
     /// Returns all pairs from `array` whose sum equals `target`.
-    /// - Parameter useDictionary: if true uses a hash-map approach (WIP — may produce duplicates).
+    /// - Parameter useDictionary: if true uses an O(n) hash-map approach; if false uses a sorted two-pointer approach.
+    ///   The two-pointer approach may return duplicate pairs when duplicate values exist in the input.
+    ///   The hash approach returns one pair per unique value combination.
     public static func allPairs(from array: [Int], summingTo target: Int, useDictionary: Bool) -> [[Int]] {
         if useDictionary {
-            // WIP: builds a lookup map, may produce duplicates
-            var dict: [Int: Int] = [:]
-            for number in array {
-                dict[target - number] = number
-            }
+            var freq: [Int: Int] = [:]
+            for number in array { freq[number, default: 0] += 1 }
             var pairs: [[Int]] = []
+            var processed = Set<Int>()
             for number in array {
-                if let other = dict[number] {
-                    pairs.append([number, other])
+                guard !processed.contains(number) else { continue }
+                processed.insert(number)
+                let complement = target - number
+                guard let complementFreq = freq[complement] else { continue }
+                if complement == number {
+                    let pairCount = (freq[number] ?? 0) / 2
+                    for _ in 0..<pairCount { pairs.append([number, number]) }
+                } else if complement > number {
+                    let pairCount = min(freq[number] ?? 0, complementFreq)
+                    for _ in 0..<pairCount { pairs.append([number, complement]) }
                 }
             }
             return pairs
