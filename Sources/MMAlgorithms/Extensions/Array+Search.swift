@@ -32,10 +32,10 @@ extension Array where Element: Comparable & Hashable {
 
     // O(n) build + O(1) lookup via hash
     private func hashSearch(for element: Element) -> Int? {
-        var map: [Int: Int] = [:]
+        var map: [Element: Int] = [:]
         for (idx, obj) in enumerated() {
-            map[obj.hashValue] = idx
+            map[obj] = idx
         }
-        return map[element.hashValue]
+        return map[element]
     }
 }

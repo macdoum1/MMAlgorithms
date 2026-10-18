@@ -46,16 +46,11 @@ public class Graph<Value: Equatable> {
     // MARK: - Directed
 
     public var isDirected: Bool {
-        vertices.contains { !hasOppositeEdge(for: $0) }
-    }
-
-    private func hasOppositeEdge(for vertex: Vertex<Value>) -> Bool {
-        for edge in vertex.adjacentEdges {
-            for oppositeEdge in edge.to.adjacentEdges {
-                if oppositeEdge.to === vertex { return true }
+        vertices.contains { vertex in
+            vertex.adjacentEdges.contains { edge in
+                !edge.to.adjacentEdges.contains { $0.to === vertex }
             }
         }
-        return false
     }
 
     // MARK: - Prim's MST
@@ -95,6 +90,7 @@ public class Graph<Value: Equatable> {
         stack.push(start)
         while stack.count > 0 {
             guard let vertex = stack.pop() else { break }
+            if visited.contains(where: { $0 === vertex }) { continue }
             visited.append(vertex)
             for edge in vertex.adjacentEdges {
                 if !visited.contains(where: { $0 === edge.to }) {
@@ -113,6 +109,7 @@ public class Graph<Value: Equatable> {
         queue.push(start)
         while queue.count > 0 {
             guard let vertex = queue.pop() else { break }
+            if visited.contains(where: { $0 === vertex }) { continue }
             visited.append(vertex)
             for edge in vertex.adjacentEdges {
                 if !visited.contains(where: { $0 === edge.to }) {

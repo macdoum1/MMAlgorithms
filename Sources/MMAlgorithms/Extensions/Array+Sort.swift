@@ -6,6 +6,7 @@ public enum SortType {
 
 extension Array where Element: Comparable {
     public var isSorted: Bool {
+        guard count > 1 else { return true }
         for i in 0..<count - 1 {
             if self[i] > self[i + 1] { return false }
         }
@@ -80,7 +81,12 @@ extension Array where Element: FixedWidthInteger {
         guard !isEmpty else { return [] }
         let minValue = self.min()!
         let maxValue = self.max()!
-        let numBuckets = Int(maxValue - minValue) + 1
+        let (difference, overflow) = maxValue.subtractingReportingOverflow(minValue)
+        // A dense bucket array is unsuitable for a wide or unrepresentable range.
+        guard !overflow, let span = Int(exactly: difference), span < 1_000_000 else {
+            return sorted()
+        }
+        let numBuckets = span + 1
         var buckets = [[Element]](repeating: [], count: numBuckets)
         for element in self {
             buckets[Int(element - minValue)].append(element)
