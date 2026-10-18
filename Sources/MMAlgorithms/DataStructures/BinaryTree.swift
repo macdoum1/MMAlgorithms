@@ -55,12 +55,16 @@ public class BinaryTree<Value: Comparable> {
 
     // MARK: - Validation
 
+    /// Validates the insertion rule: smaller values go left, equal values go right.
     public var isValid: Bool {
-        let vals = inOrder()
-        for i in 0..<vals.count - 1 {
-            if vals[i] >= vals[i + 1] { return false }
+        func validate(_ node: Node?, lower: Value?, upper: Value?) -> Bool {
+            guard let node = node else { return true }
+            if let lower = lower, node.value < lower { return false }
+            if let upper = upper, node.value >= upper { return false }
+            return validate(node.left, lower: lower, upper: node.value)
+                && validate(node.right, lower: node.value, upper: upper)
         }
-        return true
+        return validate(root, lower: nil, upper: nil)
     }
 
     // MARK: - Level Operations

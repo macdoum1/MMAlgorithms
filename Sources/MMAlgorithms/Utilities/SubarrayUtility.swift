@@ -4,6 +4,7 @@ public enum SubarrayUtility {
 
     /// Returns the first contiguous subarray whose elements sum to `target`, or nil.
     public static func subarray(of array: [Int], summingTo target: Int) -> [Int]? {
+        guard !array.isEmpty else { return nil }
         for windowSize in 1...array.count {
             let windowCount = array.count - windowSize + 1
             for start in 0..<windowCount {
@@ -19,7 +20,7 @@ public enum SubarrayUtility {
     /// Returns the length of the longest strictly-increasing contiguous subarray.
     public static func lengthOfLongestIncreasingSubarray(in array: [Int]) -> Int {
         guard !array.isEmpty else { return 0 }
-        var maxLength = Int.min
+        var maxLength = 1
         var previous = array[0]
         var current = 1
         for i in 1..<array.count {
@@ -52,6 +53,7 @@ public enum SubarrayUtility {
 
     /// Returns three elements from `array` whose sum equals `target`, or nil.
     public static func threeElements(in array: [Int], summingTo target: Int) -> [Int]? {
+        guard array.count >= 3 else { return nil }
         let sorted = array.quickSort()
         for i in 0..<sorted.count - 2 {
             var left = i + 1
@@ -67,17 +69,18 @@ public enum SubarrayUtility {
 
     // MARK: - Subarray with least average
 
-    /// Returns the contiguous subarray of `size` elements with the smallest average.
+    /// Returns the first contiguous subarray of `size` elements with the smallest average.
+    /// Returns nil unless `size` is positive and no larger than the array.
     public static func subarrayWithLeastAverage(in array: [Int], size: Int) -> [Int]? {
-        guard array.count >= size else { return nil }
+        guard size > 0 && array.count >= size else { return nil }
         var leastSum = array[0..<size].reduce(0, +)
         var startIndex = 0
         var currentSum = leastSum
         for i in size..<array.count {
-            currentSum += array[i] - array[i - 1]
+            currentSum += array[i] - array[i - size]
             if currentSum < leastSum {
                 leastSum = currentSum
-                startIndex = i
+                startIndex = i - size + 1
             }
         }
         return Array(array[startIndex..<startIndex + size])
@@ -85,8 +88,10 @@ public enum SubarrayUtility {
 
     // MARK: - Triplets with sum less than
 
-    /// Returns all triplets from `array` whose sum is strictly less than `limit`.
+    /// Returns every index-distinct triplet whose sum is strictly less than `limit`.
+    /// Triplets are sorted internally; equal values at different indices remain distinct.
     public static func triplets(from array: [Int], withSumLessThan limit: Int) -> [[Int]] {
+        guard array.count >= 3 else { return [] }
         let sorted = array.quickSort()
         var result: [[Int]] = []
         for i in 0..<sorted.count - 2 {
@@ -95,7 +100,9 @@ public enum SubarrayUtility {
             while left < right {
                 let sum = sorted[i] + sorted[left] + sorted[right]
                 if sum < limit {
-                    result.append([sorted[i], sorted[left], sorted[right]])
+                    for j in (left + 1)...right {
+                        result.append([sorted[i], sorted[left], sorted[j]])
+                    }
                     left += 1
                 } else {
                     right -= 1

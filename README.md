@@ -55,14 +55,14 @@ Binary search tree with standard traversals and level-order operations.
 
 | Method / Property | Description |
 |---|---|
-| `insert(_ value: T)` | Inserts a value into the BST at the correct position. |
+| `insert(_ value: T)` | Inserts a value into the BST; equal values go to the right. |
 | `inOrder() -> [T]` | In-order (left, root, right) traversal — returns values in ascending order for a valid BST. |
 | `preOrder() -> [T]` | Pre-order (root, left, right) traversal. |
 | `postOrder() -> [T]` | Post-order (left, right, root) traversal. |
 | `levelOrder() -> [[T]]` | BFS traversal returning values grouped by level. |
 | `valuesByLevel() -> [[T]]` | Returns values grouped by depth. Equivalent to `levelOrder()`. |
 | `values(atLevel: Int) -> [T]` | Returns all values at a specific depth level (0-indexed). |
-| `isValid: Bool` | Returns `true` if the tree satisfies the BST property at every node. |
+| `isValid: Bool` | Returns `true` if the tree satisfies the BST property at every node, including the equal-values-on-right rule. |
 | `isComplete: Bool` | Returns `true` if every level is fully filled except possibly the last, which is filled left to right. |
 | `transform(_ transform: (T) -> T)` | Applies `transform` to every node value in place. |
 | `averagesByLevel() -> [Int]` | *(T == Int only)* Returns the integer average of node values at each level. |
@@ -93,7 +93,7 @@ Sorting algorithms on arrays.
 | `mergeSort() -> [T]` | Merge sort. Stable, O(n log n) time. |
 | `quickSort() -> [T]` | Quick sort with random pivot. O(n log n) average time. |
 | `insertionSort() -> [T]` | Insertion sort. O(n²), but efficient for small or nearly-sorted arrays. |
-| `bucketSort() -> [T]` | Bucket sort. O(n + k) for integer arrays where k is the value range. Available when `T: FixedWidthInteger`. |
+| `bucketSort() -> [T]` | Bucket sort for dense integer ranges; falls back to standard sorting for wide ranges that would overflow or need excessive buckets. Available when `T: FixedWidthInteger`. |
 | `isSorted: Bool` | Returns `true` if the array is in non-descending order. |
 
 ### Array+Search
@@ -102,7 +102,7 @@ Search algorithms on arrays.
 
 | Method / Property | Description |
 |---|---|
-| `search(for:using:) -> Int?` | Returns the index of `element` using the specified algorithm, or `nil` if not found. Options: `.iterator` (O(n) linear scan), `.binary` (O(log n), requires sorted array), `.hash` (O(1) average lookup via hash map). |
+| `search(for:using:) -> Int?` | Returns the index of `element` using the specified algorithm, or `nil` if not found. Options: `.iterator` (O(n) linear scan), `.binary` (O(log n), requires sorted array), `.hash` (O(n) map build and O(1) average lookup). |
 
 ### Array+Merge
 
@@ -163,9 +163,9 @@ Random generation.
 
 | Method / Property | Description |
 |---|---|
-| `factorial(_ n: Int) -> Int` | Returns `n!` using recursion. |
-| `factorialIterative(_ n: Int) -> Int` | Returns `n!` using iteration (O(1) space). |
-| `divide(_ numerator: Int, by denominator: Int) throws -> Int` | Integer division using repeated subtraction — no `/` operator. Throws `ArithmeticError.divisionByZero` when `denominator` is 0. |
+| `factorial(_ n: Int) -> Int` | Returns `n!` using recursion. Input must be 0...20 on 64-bit Int. |
+| `factorialIterative(_ n: Int) -> Int` | Returns `n!` using iteration (O(1) space). Input must be 0...20 on 64-bit Int. |
+| `divide(_ numerator: Int, by denominator: Int) throws -> Int` | Integer division without `/`, truncated toward zero. Throws `ArithmeticError.divisionByZero` for zero denominator and `.overflow` for `Int.min / -1`. |
 
 ---
 
@@ -194,6 +194,7 @@ x.letMimik { $0 + 1 }       // → 2
 ### SubarrayUtility
 
 Static methods for common subarray problems.
+For integer sums, inputs must be small enough that intermediate sums fit in `Int`.
 
 | Method | Description |
 |---|---|
@@ -201,21 +202,21 @@ Static methods for common subarray problems.
 | `lengthOfLongestIncreasingSubarray(in:) -> Int` | Returns the length of the longest strictly-increasing contiguous subarray. O(n). |
 | `longestIncreasingSubarray(in:) -> [Int]` | Returns the longest strictly-increasing contiguous subarray. O(n). |
 | `threeElements(in:summingTo:) -> [Int]?` | Returns three elements from the array whose sum equals `target`, or `nil`. Uses a sorted two-pointer approach. O(n²). |
-| `subarrayWithLeastAverage(in:size:) -> [Int]?` | Returns the contiguous subarray of exactly `size` elements with the smallest average. Uses a sliding window. O(n). |
-| `triplets(from:withSumLessThan:) -> [[Int]]` | Returns all triplets whose sum is strictly less than `limit`. Uses a sorted two-pointer approach. O(n²). |
-| `allPairs(from:summingTo:useDictionary:) -> [[Int]]` | Returns pairs whose sum equals `target`. When `useDictionary` is `false`, uses a sorted two-pointer approach and preserves duplicates for duplicate input values. When `true`, uses an O(n) hash-map approach returning one pair per unique value combination. |
+| `subarrayWithLeastAverage(in:size:) -> [Int]?` | Returns the first contiguous subarray of exactly `size` elements with the smallest average. Returns `nil` unless `size` is positive and fits in the array. Uses a sliding window. O(n). |
+| `triplets(from:withSumLessThan:) -> [[Int]]` | Returns every index-distinct triplet whose sum is strictly less than `limit`, including duplicate value triplets from separate indices. Uses a sorted two-pointer approach. O(n² + output count). |
+| `allPairs(from:summingTo:useDictionary:) -> [[Int]]` | Returns pairs whose sum equals `target`. The sorted two-pointer and hash-map paths both retain separate pairs when input multiplicities allow them. |
 
 ### ArrayAddition
 
 | Method | Description |
 |---|---|
-| `add(_ n: Int, to digits: [Int]) -> [Int]` | Adds integer `n` to a number represented as a most-significant-first digit array, propagating carries. Example: `add(2, to: [1, 2, 8])` → `[1, 3, 0]`. |
+| `add(_ n: Int, to digits: [Int]) -> [Int]` | Adds nonnegative integer `n` to a number represented as a most-significant-first array of digits 0...9, propagating carries. Example: `add(2, to: [1, 2, 8])` → `[1, 3, 0]`. |
 
 ### MaximumStockProfit
 
 | Method | Description |
 |---|---|
-| `buySell(prices: [Double]) -> StockTrade?` | Finds the buy and sell indices in a price series that maximise profit using a single-pass O(n) scan. Returns a `StockTrade(buyIndex:sellIndex:)`, or `nil` if the input has fewer than two prices. |
+| `buySell(prices: [Double]) -> StockTrade?` | Finds the earliest buy and sell indices for the largest positive profit using a single-pass O(n) scan. Returns `nil` for fewer than two prices or no gain. Prices must be finite. |
 
 ---
 

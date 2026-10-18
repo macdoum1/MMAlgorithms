@@ -1,4 +1,4 @@
-/// Adds an integer to an array of digits (base-10), handling carries.
+/// Adds a nonnegative integer to an array of base-10 digits (0...9), handling carries.
 /// Example: [1, 2, 8] + 2 → [1, 3, 0]
 public enum ArrayAddition {
     private static let base = 10

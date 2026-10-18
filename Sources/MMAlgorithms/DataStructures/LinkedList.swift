@@ -42,6 +42,7 @@ public class LinkedList<Value: Equatable> {
                 } else {
                     previous?.next = node.next
                 }
+                if node === tail { tail = previous }
                 return true
             }
             previous = node

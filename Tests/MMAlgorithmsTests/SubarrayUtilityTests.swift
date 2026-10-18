@@ -51,7 +51,8 @@ final class SubarrayUtilityTests: XCTestCase {
 
     func testTripletsWithSumLessThan() {
         let result = SubarrayUtility.triplets(from: [1, 2, 1, 3, 10, 3], withSumLessThan: 7)
-        XCTAssertEqual(result, [[1, 1, 3], [1, 2, 3], [1, 2, 3]])
+        XCTAssertEqual(result, [[1, 1, 2], [1, 1, 3], [1, 1, 3],
+                                [1, 2, 3], [1, 2, 3], [1, 2, 3], [1, 2, 3]])
     }
 
     // MARK: - Pairs with sum
